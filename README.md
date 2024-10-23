@@ -98,4 +98,4 @@ Welcome! Follow the instructions below to set up and run our Laravel and Nuxt.js
 - Ensure that the Docker containers are using enough system resources (e.g., CPU and memory) for a smooth experience.
 - If you encounter CORS errors when connecting the frontend to the backend, ensure that Laravel's CORS configuration allows requests from `http://localhost:3000`.
 
-Feel free to reach out if you have any questions or run into issues during setup!
+Feel free to reach out if you have any questions or run into issues during setup!!!
