@@ -6,6 +6,6 @@
     <title>Document</title>
 </head>
 <body>
-    <h1>Welcome to Laravel again</h1>
+    <h1>We will not use blade</h1>
 </body>
 </html>

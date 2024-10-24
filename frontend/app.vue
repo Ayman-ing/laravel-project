@@ -1,7 +1,10 @@
 <template>
+  <head>
+    <title>Laravel Project</title>
+  </head>
   <div>
     <h1>Nuxt.js and Laravel Connection Test</h1>
-    <button @click="fetchData">Fetch Data from Laravel API</button>
+    <button @click="fetchData">Fetch Data from Laravel API !</button>
     <p v-if="apiResponse">{{ apiResponse }}</p>
   </div>
 </template>
