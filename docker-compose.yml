@@ -2,22 +2,31 @@ version: '3.8'
 
 services:
   app:
-    image: composer:latest
+    image: php:8.3-fpm-alpine  # Use Alpine-based PHP image
     container_name: laravel-app
     working_dir: /var/www/html
     volumes:
       - ./backend:/var/www/html
     ports:
       - 8000:8000
-    command: sh -c "composer install && php artisan serve --host=0.0.0.0 --port=8000"
+    command: sh -c "
+      apk add --no-cache curl &&
+      curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer &&
+      composer install &&
+      docker-php-ext-install pdo_mysql &&
+      php artisan serve --host=0.0.0.0 --port=8000"
+    
     depends_on:
       - mysql
     environment:
+      - DB_CONNECTION=mysql
       - DB_HOST=mysql
       - DB_PORT=3306
       - DB_DATABASE=laravel
       - DB_USERNAME=root
       - DB_PASSWORD=secret
+    networks:
+      - laravel_network
 
   mysql:
     image: mysql:8.0
