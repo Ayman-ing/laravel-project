@@ -2,7 +2,7 @@
 export default defineNuxtConfig({
   compatibilityDate: '2024-04-03',
   devtools: { enabled: false },
-
+  plugins: ["~/plugins/preline.client.ts"],
   // Add Webpack polling for better hot-reloading in Docker
   vite: {
     server: {

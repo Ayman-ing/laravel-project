@@ -11,7 +11,11 @@
   },
   "dependencies": {
     "nuxt": "^3.13.2",
+    "preline": "^2.5.1",
     "vue": "latest",
     "vue-router": "latest"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.4.14"
   }
 }
