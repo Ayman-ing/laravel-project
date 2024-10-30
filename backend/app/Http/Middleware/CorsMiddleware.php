@@ -13,16 +13,22 @@ class CorsMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
+        // Handle preflight OPTIONS request
         if ($request->isMethod('OPTIONS')) {
-            $response = response('', 200);
-        } else {
-            $response = $next($request);
+            return response('', 200)
+                ->header('Access-Control-Allow-Origin', '*')
+                ->header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
+                ->header('Access-Control-Allow-Headers', 'X-Requested-With, Content-Type, X-Token-Auth, Authorization')
+                ->header('Access-Control-Max-Age', '3600');
         }
 
+        // Proceed with the request for other HTTP methods
+        $response = $next($request);
+
+        // Add CORS headers to the response
         return $response
             ->header('Access-Control-Allow-Origin', '*')
             ->header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
-            ->header('Access-Control-Allow-Headers', 'X-Requested-With, Content-Type, X-Token-Auth, Authorization')
-            ->header('Access-Control-Max-Age', '3600');
+            ->header('Access-Control-Allow-Headers', 'X-Requested-With, Content-Type, X-Token-Auth, Authorization');
     }
 }
