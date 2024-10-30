@@ -9,4 +9,3 @@ Route::get('/', function () {
 
 
 
-Route::get('/consultations', [ConsultationController::class, 'getConsultations']);
