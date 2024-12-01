@@ -9,10 +9,16 @@ class AppServiceProvider extends ServiceProvider
     /**
      * Register any application services.
      */
-    public function register(): void
-    {
-        //
-    }
+    public function register()
+{
+    $this->app->bind(PatientService::class, function ($app) {
+        return new PatientService();
+    });
+    $this->app->bind(
+        \App\PatientRepositoryInterface::class,
+        \App\Repositories\PatientRepository::class
+    );
+}
 
     /**
      * Bootstrap any application services.
