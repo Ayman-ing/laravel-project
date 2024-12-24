@@ -24,7 +24,7 @@ export const AppointmentService = {
     const flattenedAppointment = {
       patient_id: appointment.patient_id, // Use the ID directly
       appointment_date: appointment.appointment_date,
-      status: appointment.status.value, // Extract the value from the status object
+      status: appointment.status.value, 
       reason_for_visit: appointment.reason_for_visit,
       notes: appointment.notes,
       total_fee: appointment.total_fee,

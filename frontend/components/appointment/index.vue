@@ -4,13 +4,29 @@ import { FilterMatchMode } from '@primevue/core/api';
 import { useToast } from 'primevue/usetoast';
 import { onMounted, ref } from 'vue';
 
+
+
 onMounted(() => {
-  AppointmentService.getAppointments().then((data) => (appointments.value = data));
+  AppointmentService.getAppointments().then((data) => {
+    // Split the appointment date into separate date and time fields
+    appointments.value = data.map((appointment) => {
+      const [date, time] = appointment.appointment_date.split(' '); // Split by 'T' if it's an ISO string, or space if formatted differently
+      return {
+        ...appointment,
+        date, 
+        time: time ? time.slice(0, 5) : '', // Extracted time (HH:MM)
+      };
+    });
+
+    console.log(appointments.value);
+  });
 });
+
 
 const toast = useToast();
 const dt = ref();
 const appointments = ref([]);
+console.log(appointments.value);
 const appointmentDialog = ref(false);
 const deleteAppointmentDialog = ref(false);
 const deleteAppointmentsDialog = ref(false);
@@ -20,8 +36,10 @@ const filters = ref({
   global: { value: null, matchMode: FilterMatchMode.CONTAINS },
 });
 const submitted = ref(false);
-const statuses = ref([
-  { label: 'Scheduled', value: 'scheduled' },
+const status = ref([
+  { label: 'pending', value:  'pending' },
+  { label: 'confirmed', value: 'confirmed' },
+  { label: 'in_progress', value: 'in_progress' },
   { label: 'Completed', value: 'completed' },
   { label: 'Canceled', value: 'canceled' },
   { label: 'No Show', value: 'no_show' },
@@ -117,20 +135,27 @@ async function deleteSelectedAppointments() {
   
 }
 
-function getStatusLabel(status) {
+
+  function getStatusLabel(status) {
   switch (status) {
-    case 'scheduled':
-      return 'info';
+    case 'pending':
+      return 'secondary'; // Grey color for pending
+    case 'confirmed':
+      return 'info'; // Blue color for confirmed
+    case 'in_progress':
+      return 'success'; // Dark blue for in-progress
     case 'completed':
-      return 'success';
+      return 'contrast'; // Green for completed
     case 'canceled':
-      return 'danger';
+      return 'danger'; // Red for canceled
     case 'no_show':
-      return 'warn';
+      return 'warn'; // Yellow for no-show
     default:
-      return null;
+      return 'secondary'; // Default grey for unknown statuses
   }
 }
+
+
 </script>
 
 
@@ -173,7 +198,8 @@ function getStatusLabel(status) {
           </template>
   
           <Column selectionMode="multiple" style="width: 3rem" :exportable="false"></Column>
-          <Column field="appointment_date" header="Date" sortable style="min-width: 12rem"></Column>
+          <Column field="date" header="Date" sortable style="min-width: 12rem"></Column>
+          <Column field="time" header="Time" sortable style="min-width: 12rem"></Column>
           <Column field="patient" header="Patient" sortable style="min-width: 16rem">
             <template #body="slotProps">
               {{ slotProps.data.patient?.firstName }} {{ slotProps.data.patient?.lastName }}
@@ -187,7 +213,9 @@ function getStatusLabel(status) {
           </Column>
           <Column :exportable="false" style="min-width: 12rem">
             <template #body="slotProps">
+              <nuxt-link :to="`/appointments/${slotProps.data.id}`" >
                 <Button icon="pi pi-eye" outlined rounded  @click="showAppointment(slotProps.data)" />
+            </nuxt-link>
               <Button icon="pi pi-pencil" outlined rounded severity="info" class="m-2" @click="editAppointment(slotProps.data)" />
               <Button icon="pi pi-trash" outlined rounded severity="danger" @click="confirmDeleteAppointment(slotProps.data)" />
 
@@ -232,7 +260,7 @@ function getStatusLabel(status) {
       <Select
         id="status"
         v-model="appointment.status"
-        :options="statuses"
+        :options="status"
         optionLabel="label"
         placeholder="Select a Status"
         fluid

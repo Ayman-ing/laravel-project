@@ -55,7 +55,7 @@ public function update(Request $request, $id)
         $data = $request->validate([
             'patient_id' => 'sometimes|exists:patients,id', // Ensure patient exists
             'appointment_date' => 'sometimes|date|after:now', // Ensure valid date and in the future
-            'status' => 'sometimes|in:scheduled,completed,canceled,no_show', // Restrict to allowed statuses
+            'status' => 'sometimes|in:pending,confirmed,in_progress,completed,canceled,no_show', // Restrict to allowed statuses
             'reason_for_visit' => 'nullable|string|max:255', // Optional and max length
             'notes' => 'nullable|string|max:500', // Optional and max length
             'total_fee' => 'nullable|numeric|min:0', // Optional and should be positive
