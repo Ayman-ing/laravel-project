@@ -1,59 +1,68 @@
 <?php
 
 namespace App\Http\Controllers;
-
-use App\Services\PatientService;
+use App\Models\Patient;
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
 class PatientController extends Controller
 {
-    protected $PatientService;
-
-    public function __construct(PatientService $PatientService)
-    {
-        $this->PatientService = $PatientService;
-    }
-
     public function index()
     {
-        $Patients = $this->PatientService->getAllPatients();
-        return response()->json($Patients);
-    }
-
-    public function show($id)
-    {
-        $Patient = $this->PatientService->getPatientById($id);
-        return response()->json($Patient);
+        $products = Patient::all();
+        return response()->json($products);
     }
 
     public function store(Request $request)
     {
-        $data = $request->validate([
-            'client_id' => 'required|exists:clients,id',
-            'Patient_date' => 'required|date',
-            'notes' => 'nullable|string',
+        $validatedData = $request->validate([
+            'firstName' => 'required|max:255',
+            'lastName' => 'required|max:255',
+            'sex' => 'required|max:255',
+            'groupS' => 'nullable',
+            'address' => 'required|max:255',
+            'civilization' => 'required|max:255',
+            'birthDate' => 'required',
+            'email' => 'required',
+            'phone' => 'required',
+            
         ]);
 
-        $Patient = $this->PatientService->createPatient($data);
-        return response()->json($Patient, 201);
+        $product = Patient::create($validatedData);
+        return response()->json($product, 201);
+    }
+
+    public function show($id)
+    {
+        $product = Patient::findOrFail($id);
+        return response()->json($product);
     }
 
     public function update(Request $request, $id)
     {
-        $data = $request->validate([
-            'client_id' => 'sometimes|exists:clients,id',
-            'Patient_date' => 'sometimes|date',
-            'notes' => 'nullable|string',
+        $product = Patient::findOrFail($id);
+
+        $validatedData = $request->validate([
+            'firstName' => 'required|max:255',
+            'lastName' => 'required|max:255',
+            'sex' => 'required|max:255',
+            'groupS' => 'nullable',
+            'address' => 'required|max:255',
+            'civilization' => 'required|max:255',
+            'birthDate' => 'required',
+            'email' => 'required',
+            'phone' => 'required',
+            
         ]);
 
-        $Patient = $this->PatientService->updatePatient($id, $data);
-        return response()->json($Patient);
+        $product->update($validatedData);
+        return response()->json($product);
     }
 
     public function destroy($id)
     {
-        $this->PatientService->deletePatient($id);
-        return response()->json(['message' => 'Patient deleted successfully'], 200);
+        $product = Patient::findOrFail($id);
+        $product->delete();
+        return response()->json(null, 204);
     }
 }
-
