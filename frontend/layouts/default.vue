@@ -6,9 +6,9 @@
             <template #start>
                 <div class="flex items-center gap-2">
                     <NuxtLink to="/"><img src="../assets/logo.png" alt="logo" style="width: 38px" class="rounded-full" /></NuxtLink>
-                    <NuxtLink to="/appointments"><Button label="Rendez-vous" text plain /></NuxtLink>
-                    <Button label="Edit" text plain />
-                    <Button label="View" text plain />
+                    <NuxtLink to="/appointments"><Button label="Appointments" text plain /></NuxtLink>
+                    <Button label="Consultations" text plain />
+                    <Button label="Patients" text plain />
                 </div>
             </template>
 
