@@ -11,13 +11,21 @@ return new class extends Migration
      */
     public function up(): void
     {
+        Schema::disableForeignKeyConstraints();
         Schema::create('appointments', function (Blueprint $table) {
             $table->id();
-            //$table->foreignId('client_id')->constrained()->onDelete('cascade');
-            $table->dateTime('appointment_date');
-            $table->text('notes')->nullable();
-            $table->timestamps();
+            $table->foreignId('patient_id')->constrained('patients')->onDelete('cascade'); 
+            $table->dateTime('appointment_date'); 
+            $table->enum('status', ['pending', 'confirmed', 'in_progress', 'completed', 'canceled', 'no_show'])
+      ->default('pending');
+            $table->text('reason_for_visit')->nullable(); 
+            $table->text('notes')->nullable(); 
+            $table->decimal('total_fee', 10, 2)->nullable(); 
+            $table->timestamp('canceled_at')->nullable(); 
+            $table->text('cancellation_reason')->nullable();
+            $table->timestamps(); 
         });
+        Schema::enableForeignKeyConstraints();
     }
 
     /**
@@ -25,6 +33,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('consultations');
+        Schema::disableForeignKeyConstraints();
+        Schema::dropIfExists('appointments'); // Corrected table name
+        Schema::enableForeignKeyConstraints();
     }
 };

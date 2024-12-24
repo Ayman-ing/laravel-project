@@ -1,7 +1,8 @@
+import Aura from '@primevue/themes/aura';
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   compatibilityDate: '2024-04-03',
-  devtools: { enabled: false },
+  devtools: { enabled: true },
 
   // Add Webpack polling for better hot-reloading in Docker
   vite: {
@@ -13,5 +14,27 @@ export default defineNuxtConfig({
     },
   },
 
-  modules: ['@nuxtjs/tailwindcss'],
+  modules: ['@nuxtjs/tailwindcss', '@primevue/nuxt-module'],
+  css: [
+    'primeicons/primeicons.css', // PrimeIcons CSS for icons
+
+  ],
+  primevue: {
+    options: {
+      
+        theme: {
+            preset: Aura,
+            options : {
+              darkModeSelector: '.my-app-dark',
+            }
+        },
+        
+        
+        
+      
+    }
+    
+}
+ 
+
 })
