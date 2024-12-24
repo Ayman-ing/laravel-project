@@ -1,18 +1,22 @@
 <?php
-use App\Http\Middleware;
+
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ConsultationController;
+use App\Http\Controllers\AppointmentController;
+
+// Test Route
 Route::get('/test', function () {
     return response()->json(['message' => 'Hello from Laravel API!']);
 });
 
-use App\Http\Controllers\ConsultationController;
-Route::get('/consultations', [ConsultationController::class, 'getConsultations']);
+// Routes pour le ConsultationController
+Route::get('consultations', [ConsultationController::class, 'getConsultations']);
+Route::get('consultations/{id}', [ConsultationController::class, 'getConsultationById']);
+Route::post('consultations', [ConsultationController::class, 'createConsultation']);
+Route::put('consultations/{id}', [ConsultationController::class, 'editConsultation']);
+Route::delete('consultations/{id}', [ConsultationController::class, 'deleteConsultation']);
 
-
-
-
-use App\Http\Controllers\AppointmentController;
-
+// Routes pour le AppointmentController
 Route::get('appointments', [AppointmentController::class, 'index']);
 Route::get('appointments/{id}', [AppointmentController::class, 'show']);
 Route::post('appointments', [AppointmentController::class, 'store']);
