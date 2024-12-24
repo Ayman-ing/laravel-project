@@ -13,7 +13,9 @@
 import { ref } from 'vue';
 
 const apiResponse = ref(null);
-
+definePageMeta({
+  layout: "default",
+});
 const fetchData = async () => {
   try {
     const response = await $fetch('http://localhost:8000/api/test');

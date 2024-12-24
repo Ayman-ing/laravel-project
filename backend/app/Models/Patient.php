@@ -3,9 +3,11 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory; // Import the HasFactory trait
 
 class Patient extends Model
 {
+    use HasFactory;
     protected $fillable = [
         'firstName',
         'lastName',
@@ -18,4 +20,9 @@ class Patient extends Model
         'phone',
         
     ];
+    public function appointments()
+    {
+        return $this->hasMany(Appointment::class);
+    }
+
 }
