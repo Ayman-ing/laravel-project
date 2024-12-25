@@ -12,6 +12,11 @@ class PatientController extends Controller
         $products = Patient::all();
         return response()->json($products);
     }
+    public function PatientsNames()
+    {
+        $products = Patient::all();
+        return response()->json($products);
+    }
 
     public function store(Request $request)
     {

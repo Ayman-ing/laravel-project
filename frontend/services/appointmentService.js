@@ -5,6 +5,17 @@ export const AppointmentService = {
   async getAppointments() {
     return await $fetch(`${API_URL}/appointments`);
   },
+  // Fetch all appointments paginated
+  async getAppointmentsPaginated(page = 1, rows = 5, sortField = '', sortOrder = '') {
+    const query = new URLSearchParams({
+      page,
+      rows,
+      sortField,
+      sortOrder,
+    }).toString();
+
+    return await $fetch(`${API_URL}/appointments?${query}`);
+  },
 
   // Fetch a single appointment
   async getAppointment(id) {
@@ -13,22 +24,40 @@ export const AppointmentService = {
 
   // Create a new appointment
   async createAppointment(appointment) {
+    const [hour,minute] = appointment.time.split(':')
+    appointment.time = hour + ':' + minute
+    const flattenedAppointment = {
+      patient_id: appointment.patient_id, // Use the ID directly
+      date: appointment.date,
+      time: appointment.time,
+      status: appointment.status.value,
+      reason_for_visit: appointment.reason_for_visit,
+      notes: appointment.notes,
+      total_fee: appointment.total_fee,
+      canceled_at: appointment.canceled_at,
+      cancellation_reason: appointment.cancellation_reason,
+    };
     return await $fetch(`${API_URL}/appointments`, {
       method: 'POST',
-      body: appointment,
+      body: flattenedAppointment,
     });
   },
 
   async updateAppointment(id, appointment) {
+    const [hour,minute] = appointment.time.split(':')
+    appointment.time = hour + ':' + minute
+   
+ 
     // Flatten the payload
     const flattenedAppointment = {
       patient_id: appointment.patient_id, // Use the ID directly
-      appointment_date: appointment.appointment_date,
+      date: appointment.date,
+      time: appointment.time,
       status: appointment.status.value, 
       reason_for_visit: appointment.reason_for_visit,
       notes: appointment.notes,
       total_fee: appointment.total_fee,
-      cancelation_date: appointment.cancelation_date,
+      canceled_at: appointment.canceled_at,
       cancellation_reason: appointment.cancellation_reason,
     };
   

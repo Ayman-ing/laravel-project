@@ -12,7 +12,8 @@ class AppointmentFactory extends Factory
     {
         return [
             'patient_id' => $this->faker->numberBetween(1, 10), // Placeholder IDs for now
-            'appointment_date' => $this->faker->dateTimeBetween('now', '+30 days'),
+            'date' => $this->faker->dateTimeBetween('now', '+30 days')->format('Y-m-d'), // Generate only the date
+            'time' => $this->faker->dateTimeBetween('08:00:00', '17:00:00')->format('H:i'), // Generate only the time
             'status' => $this->faker->randomElement(['pending', 'confirmed', 'in_progress', 'completed', 'canceled', 'no_show']),
       
             'reason_for_visit' => $this->faker->sentence(5),

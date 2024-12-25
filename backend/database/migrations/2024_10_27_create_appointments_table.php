@@ -15,7 +15,8 @@ return new class extends Migration
         Schema::create('appointments', function (Blueprint $table) {
             $table->id();
             $table->foreignId('patient_id')->constrained('patients')->onDelete('cascade'); 
-            $table->dateTime('appointment_date'); 
+            $table->date('date');
+            $table->time('time'); 
             $table->enum('status', ['pending', 'confirmed', 'in_progress', 'completed', 'canceled', 'no_show'])
       ->default('pending');
             $table->text('reason_for_visit')->nullable(); 
