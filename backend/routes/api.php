@@ -4,11 +4,14 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ConsultationController;
 use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\PatientController;
+use App\Http\Controllers\HomeController;
 
 // Test Route
 Route::get('/test', function () {
     return response()->json(['message' => 'Hello from Laravel API!']);
 });
+
+Route::get('/', [HomeController::class, 'index'])->name('home.index');
 
 // Routes pour le ConsultationController
 Route::get('consultations', [ConsultationController::class, 'index'])->name("consultations.index");
