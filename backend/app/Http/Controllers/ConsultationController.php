@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Consultation;
+use App\Models\Appointment;
+use Illuminate\Support\Facades\DB;
+
 
 class ConsultationController extends Controller
 {
@@ -32,9 +35,13 @@ class ConsultationController extends Controller
     public function store(Request $request)
     {
         $validatedData = $request->validate([
-            'date_cons' => 'required|date',
-            'diag_cons' => 'required|string|max:255',
-            'medication' => 'nullable|string|max:255',
+            'date' => 'required|date', 
+            'time' => 'required|date_format:H:i', 
+            'duration' => 'nullable|integer|min:1', 
+            'symptoms' => 'nullable|string',
+            'diagnosis' => 'required|string|max:255',
+            'treatment_plan' => 'nullable|string',
+            'prescription' => 'nullable|string|max:255',
             'patient_id' => 'required|exists:patients,id',
             'appointment_id' => 'required|exists:appointments,id',
         ]);
@@ -47,33 +54,56 @@ class ConsultationController extends Controller
         ], 201);
     }
 
-    // Update an existing consultation with locking
+
     public function update(Request $request, $id)
     {
-        $consultation = Consultation::find($id);
-
-        if (!$consultation) {
-            return response()->json(['message' => 'Consultation not found'], 404);
+        DB::beginTransaction(); // Start a transaction
+    
+        try {
+            // Lock the consultation record for update
+            $consultation = Consultation::where('id', $id)->lockForUpdate()->first();
+    
+            if (!$consultation) {
+                return response()->json(['error' => 'Consultation not found.'], 404);
+            }
+    
+            // Validate the request data
+            $data = $request->validate([
+                'date' => 'sometimes|date|after_or_equal:today',
+                'time' => 'sometimes|date_format:H:i', 
+                'duration' => 'nullable|integer|min:1', 
+                'symptoms' => 'nullable|string|max:255', 
+                'diagnosis' => 'sometimes|string|max:255',
+                'treatment_plan' => 'nullable|string', 
+                'prescription' => 'nullable|string|max:255', 
+                'test_results' => 'nullable|string', 
+                'referrals' => 'nullable|string',
+                'consultation_notes' => 'nullable|string|max:500', 
+                'patient_id' => 'sometimes|exists:patients,id', 
+                'appointment_id' => 'sometimes|exists:appointments,id', 
+            ]);
+    
+            $consultation->update($data);
+    
+            // Reload consultation with relations for the response
+            $consultation = Consultation::with(['patient', 'appointment'])->findOrFail($id);
+    
+            DB::commit(); // Commit the transaction
+    
+            return response()->json([
+                'message' => 'Consultation updated successfully.',
+                'consultation' => $consultation,
+            ], 200); // 200 for successful update
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            DB::rollBack(); // Rollback the transaction for validation errors
+            return response()->json(['error' => 'Validation error.', 'details' => $e->errors()], 422); // 422 for validation errors
+        } catch (\Exception $e) {
+            DB::rollBack(); // Rollback the transaction for general errors
+            return response()->json(['error' => 'An error occurred: ' . $e->getMessage()], 500); // 500 for server errors
         }
-
-        // Lock the record for update
-        $consultation->lockForUpdate();
-
-        $validatedData = $request->validate([
-            'date_cons' => 'sometimes|date',
-            'diag_cons' => 'sometimes|string|max:255',
-            'medication' => 'sometimes|string|max:255',
-            'patient_id' => 'sometimes|exists:patients,id',
-            'appointment_id' => 'sometimes|exists:appointments,id',
-        ]);
-
-        $consultation->update($validatedData);
-
-        return response()->json([
-            'message' => 'Consultation updated successfully',
-            'consultation' => $consultation,
-        ]);
     }
+    
+
 
     // Delete a consultation with locking
     public function destroy($id)

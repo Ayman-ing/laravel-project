@@ -4,26 +4,39 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
+class CreateConsultationsTable extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
+        Schema::disableForeignKeyConstraints();
+
         Schema::create('consultations', function (Blueprint $table) {
-            $table->id('id_cons'); // Identifiant de consultation
-            $table->date('date_cons'); // Date de consultation
-            $table->string('diag_cons'); // Diagnostic de consultation
-            $table->timestamps(); // created_at et updated_at
+            $table->id();
+            $table->foreignId('appointment_id')
+                ->nullable()
+                ->constrained('appointments')
+                ->onDelete('set null');
+            $table->foreignId('patient_id')
+                ->constrained('patients')
+                ->onDelete('cascade');
+            $table->date('date');
+            $table->time('time'); 
+            $table->integer('duration')->nullable();
+            $table->text('symptoms')->nullable();
+            $table->text('diagnosis')->nullable();
+            $table->text('treatment_plan')->nullable(); 
+            $table->text('prescription')->nullable(); 
+            $table->text('test_results')->nullable(); 
+            $table->text('referrals')->nullable(); 
+            $table->text('consultation_notes')->nullable(); 
+            $table->timestamps();
         });
+
+        Schema::enableForeignKeyConstraints();
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('consultations');
     }
-};
+}
