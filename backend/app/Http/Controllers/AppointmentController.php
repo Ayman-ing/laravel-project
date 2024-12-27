@@ -47,7 +47,6 @@ class AppointmentController extends Controller
     }
         // Paginate the results
         return $query->paginate($request->get('rows', 5));
-
     }
 
     // Get a specific appointment by ID

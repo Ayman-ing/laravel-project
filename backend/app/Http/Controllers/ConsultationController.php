@@ -7,14 +7,17 @@ use App\Models\Consultation;
 
 class ConsultationController extends Controller
 {
-    public function getConsultations()
+    // List consultations with pagination
+    public function index(Request $request)
     {
-        $consultations = Consultation::all();
+        $perPage = $request->get('per_page', 10); // Default to 10 items per page
+        $consultations = Consultation::paginate($perPage);
+
         return response()->json($consultations);
     }
 
-    // Récupérer une consultation par son ID
-    public function getConsultationById($id)
+    // Retrieve a consultation by ID
+    public function show($id)
     {
         $consultation = Consultation::find($id);
 
@@ -25,12 +28,15 @@ class ConsultationController extends Controller
         return response()->json($consultation);
     }
 
-    // Créer une nouvelle consultation
-    public function createConsultation(Request $request)
+    // Create a new consultation
+    public function store(Request $request)
     {
         $validatedData = $request->validate([
             'date_cons' => 'required|date',
             'diag_cons' => 'required|string|max:255',
+            'medication' => 'nullable|string|max:255',
+            'patient_id' => 'required|exists:patients,id',
+            'appointment_id' => 'required|exists:appointments,id',
         ]);
 
         $consultation = Consultation::create($validatedData);
@@ -41,8 +47,8 @@ class ConsultationController extends Controller
         ], 201);
     }
 
-    // Modifier une consultation existante
-    public function editConsultation(Request $request, $id)
+    // Update an existing consultation with locking
+    public function update(Request $request, $id)
     {
         $consultation = Consultation::find($id);
 
@@ -50,9 +56,15 @@ class ConsultationController extends Controller
             return response()->json(['message' => 'Consultation not found'], 404);
         }
 
+        // Lock the record for update
+        $consultation->lockForUpdate();
+
         $validatedData = $request->validate([
             'date_cons' => 'sometimes|date',
             'diag_cons' => 'sometimes|string|max:255',
+            'medication' => 'sometimes|string|max:255',
+            'patient_id' => 'sometimes|exists:patients,id',
+            'appointment_id' => 'sometimes|exists:appointments,id',
         ]);
 
         $consultation->update($validatedData);
@@ -63,14 +75,17 @@ class ConsultationController extends Controller
         ]);
     }
 
-    // Supprimer une consultation
-    public function deleteConsultation($id)
+    // Delete a consultation with locking
+    public function destroy($id)
     {
         $consultation = Consultation::find($id);
 
         if (!$consultation) {
             return response()->json(['message' => 'Consultation not found'], 404);
         }
+
+        // Lock the record for deletion
+        $consultation->lockForUpdate();
 
         $consultation->delete();
 
