@@ -1,7 +1,6 @@
 <?php
 
 namespace App\Http\Controllers;
-
 use App\Models\Appointment;
 use App\Models\Patient;
 use Illuminate\Http\Request;
@@ -12,7 +11,6 @@ class AppointmentController extends Controller
     // Get all appointments
     public function index(Request $request)
     {
-
 
         $query = Appointment::with(['patient:id,firstName,lastName,phone']);
 

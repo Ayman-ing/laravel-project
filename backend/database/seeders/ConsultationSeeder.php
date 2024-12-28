@@ -10,6 +10,6 @@ class ConsultationSeeder extends Seeder
     public function run()
     {
         // Générer 50 consultations
-        Consultation::factory()->count(50)->create();
+        Consultation::factory()->count(60)->create();
     }
 }
