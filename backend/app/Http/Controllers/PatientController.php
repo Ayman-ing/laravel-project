@@ -7,10 +7,20 @@ use Illuminate\Http\Request;
 
 class PatientController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $products = Patient::all();
-        return response()->json($products);
+        $query = Patient::query();
+        $allowedSortFields = ["firstName", "lastName","sex","address","birthDate","email","phone"];
+        $sortField = $request->get('sortField', null); // Get the sortField from the request
+        $sortOrder = $request->get('sortOrder', 'asc'); // Default to ascending order
+        if (in_array($sortField, $allowedSortFields)) {
+            // Sort by the requested field
+            $query->orderBy($sortField, $sortOrder);
+        } else {
+            // Default sorting by date and then time
+            $query->orderBy("id", "asc");
+        }
+        return $query->paginate($request->get('rows', 5));
     }
     public function PatientsNames()
     {

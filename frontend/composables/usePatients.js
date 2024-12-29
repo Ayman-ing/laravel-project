@@ -6,11 +6,14 @@ export function usePatients() {
  
 
   // Fetch all patients
-  const fetchPatients = async () => {
+  const fetchPatients = async (page = 1, rows = 5, sortField = '', sortOrder = '') => {
     isLoadingPatients.value = true;
+    if (sortField === 'name') {
+      sortField = 'firstName';
+    }
     try {
-      const fetchedPatients = await PatientService.getPatients();
-      patients.value = fetchedPatients.map((patient) => ({
+      const fetchedPatients = await PatientService.getPatientsPaginated(page, rows, sortField, sortOrder);
+      patients.value = fetchedPatients.data.map((patient) => ({
         ...patient,
         name: `${patient.firstName} ${patient.lastName}`,
       }));
