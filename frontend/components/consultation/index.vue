@@ -1,193 +1,164 @@
 <script setup>
-import { AppointmentService } from '~/services/appointmentService';
+import { ConsultationService } from '~/services/consultationService';
+import { PatientService } from '~/services/patientService';
 import { FilterMatchMode } from '@primevue/core/api';
 import { useToast } from 'primevue/usetoast';
 import { onMounted, ref } from 'vue';
 
+const {
+  consultations,
+    totalRecords,
+    fetchConsultations,
 
+} = useConsultations();
+const {
+  fetchPatients,
+} = usePatients();
 
-onMounted(() => {
-  AppointmentService.getAppointments().then((data) => {
-    // Split the appointment date into separate date and time fields
-    appointments.value = data.map((appointment) => {
-      const [date, time] = appointment.appointment_date.split(' '); // Split by 'T' if it's an ISO string, or space if formatted differently
-      return {
-        ...appointment,
-        date, 
-        time: time ? time.slice(0, 5) : '', // Extracted time (HH:MM)
-      };
-    });
+const isLoading = ref(false);
+const blocked = ref(false);
+const isFetching = ref(false);
+const rowsPerPage = ref(5);
+const currentPage = ref(1);
+const sortField = ref('');
+const sortOrder = ref('');
+const consultationDialog = ref(false);
+const newConsultationDialog = ref(false);
 
-    console.log(appointments.value);
-  });
+onMounted(async () => {
+  await fetchConsultations(currentPage.value, rowsPerPage.value);
+  fetchPatients() // Trigger patient fetch after consultations
 });
+const onPageChange = (event) => {
+  currentPage.value = event.page + 1; // PrimeVue uses zero-based indexing
+  rowsPerPage.value = event.rows;
+  fetchConsultations(currentPage.value, rowsPerPage.value, sortField.value, sortOrder.value);
+};
 
+const onSortChange = (event) => {
+  sortField.value = event.sortField;
+  sortOrder.value = event.sortOrder > 0 ? 'asc' : 'desc'; // PrimeVue uses 1 for ascending and -1 for descending
+  fetchConsultations(currentPage.value, rowsPerPage.value, sortField.value, sortOrder.value);
+};
 
 const toast = useToast();
 const dt = ref();
-const appointments = ref([]);
-console.log(appointments.value);
-const appointmentDialog = ref(false);
-const deleteAppointmentDialog = ref(false);
-const deleteAppointmentsDialog = ref(false);
-const appointment = ref({});
-const selectedAppointments = ref([]);
+
+const deleteConsultationDialog = ref(false);
+const deleteConsultationsDialog = ref(false);
+const consultation = ref({});
+const selectedConsultations = ref([]);
+
 const filters = ref({
   global: { value: null, matchMode: FilterMatchMode.CONTAINS },
 });
 const submitted = ref(false);
-const status = ref([
-  { label: 'pending', value:  'pending' },
-  { label: 'confirmed', value: 'confirmed' },
-  { label: 'in_progress', value: 'in_progress' },
-  { label: 'Completed', value: 'completed' },
-  { label: 'Canceled', value: 'canceled' },
-  { label: 'No Show', value: 'no_show' },
-]);
 
-function openNew() {
-  appointment.value = {};
-  submitted.value = false;
-  appointmentDialog.value = true;
+
+function confirmDeleteConsultation(appt) {
+  consultation.value = appt;
+  deleteConsultationDialog.value = true;
 }
 
-function hideDialog() {
-  appointmentDialog.value = false;
-  submitted.value = false;
-}
-
-async function saveAppointment() {
-  submitted.value = true;
-
-  if (appointment?.value.appointment_date) {
-    if (appointment.value.id) {
-      // Update an existing appointment
-      await AppointmentService.updateAppointment(appointment.value.id, appointment.value);
-      appointments.value[findIndexById(appointment.value.id)] = appointment.value;
-      toast.add({ severity: 'success', summary: 'Successful', detail: 'Appointment Updated', life: 3000 });
-    } else {
-      // Create a new appointment
-      const newAppointment = await AppointmentService.createAppointment(appointment.value);
-      appointments.value.push(newAppointment);
-      toast.add({ severity: 'success', summary: 'Successful', detail: 'Appointment Created', life: 3000 });
-    }
-
-    appointmentDialog.value = false;
-    appointment.value = {};
-  }
-}
-
-function editAppointment(appt) {
-  appointment.value = { ...appt };
-  appointmentDialog.value = true;
-}
-function showAppointment(appt){
-  appointment.value = { ...appt };
-  appointmentDialog.value = true;
-}
-
-function confirmDeleteAppointment(appt) {
-  appointment.value = appt;
-  deleteAppointmentDialog.value = true;
-}
-
-async function deleteAppointment() {
+async function deleteConsultation() {
     
-  await AppointmentService.deleteAppointment(appointment.value.id);
+  await ConsultationService.deleteConsultation(consultation.value.id);
   
-  appointments.value = appointments.value.filter((val) => val.id !== appointment.value.id);
-  deleteAppointmentDialog.value = false;
-  appointment.value = {};
+  consultations.value = consultations.value.filter((val) => val.id !== consultation.value.id);
+  deleteConsultationDialog.value = false;
+  consultation.value = {};
   
-  toast.add({ severity: 'success', summary: 'Successful', detail: 'Appointment Deleted', life: 3000 });
+  toast.add({ severity: 'success', summary: 'Successful', detail: 'Consultation Deleted', life: 3000 });
   
 }
 
-function findIndexById(id) {
-  return appointments.value.findIndex((item) => item.id === id);
-}
+
 
 function exportCSV() {
   dt.value.exportCSV();
 }
 
 function confirmDeleteSelected() {
-  deleteAppointmentsDialog.value = true;
+  deleteConsultationsDialog.value = true;
 }
-const blocked = ref(false);
-const isLoading = ref(false);
-async function deleteSelectedAppointments() {
+
+async function deleteSelectedConsultations() {
     blocked.value = true;
     isLoading.value = true;
-  const idsToDelete = selectedAppointments.value.map((appt) => appt.id);
+  const idsToDelete = selectedConsultations.value.map((appt) => appt.id);
   for (const id of idsToDelete) {
-    await AppointmentService.deleteAppointment(id);
+    await ConsultationService.deleteConsultation(id);
   }
   blocked.value = false;  
-  appointments.value = appointments.value.filter((appt) => !selectedAppointments.value.includes(appt));
+  consultations.value = consultations.value.filter((appt) => !selectedConsultations.value.includes(appt));
   
-  deleteAppointmentsDialog.value = false;
-  selectedAppointments.value = [];
+  deleteConsultationsDialog.value = false;
+  selectedConsultations.value = [];
   
   isLoading.value = false;
   
-  toast.add({ severity: 'success', summary: 'Successful', detail: 'Appointments Deleted', life: 3000 });
+  toast.add({ severity: 'success', summary: 'Successful', detail: 'Consultations Deleted', life: 3000 });
   
 }
 
 
-  function getStatusLabel(status) {
-  switch (status) {
-    case 'pending':
-      return 'secondary'; // Grey color for pending
-    case 'confirmed':
-      return 'info'; // Blue color for confirmed
-    case 'in_progress':
-      return 'success'; // Dark blue for in-progress
-    case 'completed':
-      return 'contrast'; // Green for completed
-    case 'canceled':
-      return 'danger'; // Red for canceled
-    case 'no_show':
-      return 'warn'; // Yellow for no-show
-    default:
-      return 'secondary'; // Default grey for unknown statuses
-  }
+  
+function editConsultation(appt) {
+  consultation.value = { ...appt };
+  consultationDialog.value = true;
+}
+function openNew() {
+  consultation.value = {};
+  submitted.value = false;
+  newConsultationDialog.value = true;
 }
 
-
+function hideDialog() {
+  consultationDialog.value = false;
+  newConsultationDialog.value = false;
+  submitted.value = false;
+ 
+}
 </script>
 
 
 <template>
-    <div>
-      <div class="card">
-        <Toolbar class="mb-6">
-          <template #start>
-            <Button label="New" icon="pi pi-plus" severity="secondary" class="mr-2" @click="openNew" />
-            <Button label="Delete" icon="pi pi-trash" severity="secondary" @click="confirmDeleteSelected" :disabled="!selectedAppointments.length" />
-          </template>
-  
-          <template #end>
-            <Button label="Export" icon="pi pi-upload" severity="secondary" @click="exportCSV($event)" />
-          </template>
-        </Toolbar>
-  
+  <div>
+    <div class="card">
+      <Toolbar class="mb-2">
+        <template #start>
+          <Button label="New" icon="pi pi-plus" severity="secondary" class="mr-2" @click="openNew" />
+          <Button label="Delete" icon="pi pi-trash" severity="secondary" @click="confirmDeleteSelected" :disabled="!selectedConsultations.length" />
+        </template>
+
+        <template #end>
+          <Button label="Export" icon="pi pi-upload" severity="secondary" @click="exportCSV($event)" />
+        </template>
+      </Toolbar>
+
+      <div v-if="!isFetching">
         <DataTable
+          size="small"
           ref="dt"
-          v-model:selection="selectedAppointments"
-          :value="appointments"
+          v-model:selection="selectedConsultations"
+          :value="consultations"
           dataKey="id"
           :paginator="true"
-          :rows="5"
+          :lazy="true"
+          :rows="rowsPerPage"
+          :totalRecords="totalRecords"
+          :first="(currentPage - 1) * rowsPerPage"
+          :sortField="sortField"
+          :sortOrder="sortOrder === 'asc' ? 1 : -1"
+          @page="onPageChange"
+          @sort="onSortChange"
           :filters="filters"
           paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
-          :rowsPerPageOptions="[5, 10, 25]"
-          currentPageReportTemplate="Showing {first} to {last} of {totalRecords} appointments"
+          currentPageReportTemplate="Showing {first} to {last} of {totalRecords} consultations"
         >
           <template #header>
-            <div class="flex flex-wrap gap-2 items-center justify-between">
-              <h4 class="m-0">Manage Appointments</h4>
+            <div class="flex flex-wrap gap-2 pb-2 items-center justify-between">
+              <h4 class="m-0">Manage Consultations</h4>
               <IconField>
                 <InputIcon>
                   <i class="pi pi-search" />
@@ -196,166 +167,69 @@ async function deleteSelectedAppointments() {
               </IconField>
             </div>
           </template>
-  
+
           <Column selectionMode="multiple" style="width: 3rem" :exportable="false"></Column>
-          <Column field="date" header="Date" sortable style="min-width: 12rem"></Column>
-          <Column field="time" header="Time" sortable style="min-width: 12rem"></Column>
-          <Column field="patient" header="Patient" sortable style="min-width: 16rem">
-            <template #body="slotProps">
-              {{ slotProps.data.patient?.firstName }} {{ slotProps.data.patient?.lastName }}
-            </template>
-          </Column>
-          <Column field="reason_for_visit" header="Reason for visit" sortable style="min-width: 12rem"></Column>
-          <Column field="status" header="Status" sortable style="min-width: 10rem">
-            <template #body="slotProps">
-              <Tag :value="slotProps.data.status.value || slotProps.data.status" :severity="getStatusLabel(slotProps.data.status.value || slotProps.data.status)" />
-            </template>
-          </Column>
+          <Column field="appointment_id" header="Appointment ID" sortable style="min-width: 10rem"></Column>
+          <Column field="patient_id" header="Patient ID" sortable style="min-width: 10rem"></Column>
+          <Column field="date" header="Date" sortable style="min-width: 8rem"></Column>
+          <Column field="time" header="Time" sortable style="min-width: 8rem"></Column>
+          <Column field="duration" header="Duration" sortable style="min-width: 8rem"></Column>
+          <Column field="symptoms" header="Symptoms" sortable style="min-width: 12rem"></Column>
+          <Column field="diagnosis" header="Diagnosis" sortable style="min-width: 12rem"></Column>
+          <Column field="treatment_plan" header="Treatment Plan" sortable style="min-width: 14rem"></Column>
+          <Column field="prescription" header="Prescription" sortable style="min-width: 12rem"></Column>
+          <Column field="test_results" header="Test Results" sortable style="min-width: 12rem"></Column>
+          <Column field="referrals" header="Referrals" sortable style="min-width: 12rem"></Column>
+          <Column field="consultation_notes" header="Consultation Notes" sortable style="min-width: 14rem"></Column>
+
           <Column :exportable="false" style="min-width: 12rem">
             <template #body="slotProps">
-              <nuxt-link :to="`/appointments/${slotProps.data.id}`" >
-                <Button icon="pi pi-eye" outlined rounded  @click="showAppointment(slotProps.data)" />
-            </nuxt-link>
-              <Button icon="pi pi-pencil" outlined rounded severity="info" class="m-2" @click="editAppointment(slotProps.data)" />
-              <Button icon="pi pi-trash" outlined rounded severity="danger" @click="confirmDeleteAppointment(slotProps.data)" />
-
+              <nuxt-link :to="`/consultations/${slotProps.data.id}`">
+                <Button icon="pi pi-eye" outlined rounded />
+              </nuxt-link>
+              <Button icon="pi pi-pencil" outlined rounded severity="info" class="m-2" @click="editConsultation(slotProps.data)" />
+              <Button icon="pi pi-trash" outlined rounded severity="danger" @click="confirmDeleteConsultation(slotProps.data)" />
             </template>
           </Column>
         </DataTable>
       </div>
-  
-      <Dialog
-  v-model:visible="appointmentDialog"
-  :style="{ width: '800px' }"
-  header="Appointment Details"
-  :modal="true"
->
-  <div class="flex flex-col gap-6">
-    <!-- Appointment Date -->
-    <div>
-      <label for="appointment_date" class="block font-bold mb-3">Date</label>
-      <DatePicker
-        id="appointment_date"
-        v-model="appointment.date"
-        placeholder="Select a date"
-        fluid
-      />
+
+      <div v-else class="flex flex-col gap-6 opacity-12 pt-28 opacity-50">
+        <Skeleton height="3rem" borderRadius="16px" />
+        <Skeleton height="3rem" borderRadius="16px" />
+        <Skeleton height="3rem" borderRadius="16px" />
+        <Skeleton height="3rem" borderRadius="16px" />
+        <Skeleton height="3rem" borderRadius="16px" />
+      </div>
     </div>
 
-    <!-- Appointment Time -->
-    <div>
-      <label for="appointment_time" class="block font-bold mb-3">Time</label>
-      <DatePicker
-        id="appointment_time"
-        v-model="appointment.time"
-        placeholder="Select a time"
-        fluid
-        timeOnly
-      />
-    </div>
+    <!-- Dialogues pour gérer les consultations -->
+    <ConsultationCreate v-model:visible="newConsultationDialog" v-on:hide-dialog="hideDialog" />
+    <ConsultationEdit v-model:visible="consultationDialog" v-on:hide-dialog="hideDialog" :consultation="consultation" />
 
-    <!-- Status -->
-    <div>
-      <label for="status" class="block font-bold mb-3">Status</label>
-      <Select
-        id="status"
-        v-model="appointment.status"
-        :options="status"
-        optionLabel="label"
-        placeholder="Select a Status"
-        fluid
-      />
-    </div>
+    <Dialog v-model:visible="deleteConsultationDialog" :style="{ width: '450px' }" header="Confirm" :modal="true">
+      <div class="flex items-center gap-4">
+        <i class="pi pi-exclamation-triangle !text-3xl" />
+        <span v-if="consultation">Are you sure you want to delete this consultation?</span>
+      </div>
+      <template #footer>
+        <Button label="No" icon="pi pi-times" text @click="deleteConsultationDialog = false" />
+        <Button label="Yes" icon="pi pi-check" @click="deleteConsultation" />
+      </template>
+    </Dialog>
 
-    <!-- Reason for Visit -->
-    <div>
-      <label for="reason_for_visit" class="block font-bold mb-3">Reason for Visit</label>
-      <InputText
-        id="reason_for_visit"
-        v-model.trim="appointment.reason_for_visit"
-        required="true"
-        placeholder="Enter reason"
-        fluid
-      />
-    </div>
-
-    <!-- Patient Selection -->
-    <div>
-      <label for="patient" class="block font-bold mb-3">Patient</label>
-      <Select
-        id="patient"
-        v-model="appointment.patient_id"
-        :options="patients"
-        optionLabel="name"
-        placeholder="Select a Patient"
-        fluid
-      />
-    </div>
-
-    <!-- Notes -->
-    <div>
-      <label for="notes" class="block font-bold mb-3">Notes</label>
-      <Textarea
-        id="notes"
-        v-model="appointment.notes"
-        rows="3"
-        cols="20"
-        placeholder="Add any additional notes"
-        fluid
-      />
-    </div>
+    <Dialog v-model:visible="deleteConsultationsDialog" :style="{ width: '450px' }" header="Confirm" :modal="true">
+      <div class="flex items-center gap-4">
+        <i class="pi pi-exclamation-triangle !text-3xl" />
+        <span v-if="selectedConsultations.length">Are you sure you want to delete the selected consultations?</span>
+      </div>
+      <template #footer>
+        <Button label="No" icon="pi pi-times" text @click="deleteConsultationsDialog = false" />
+        <Button label="Yes" icon="pi pi-check" text @click="deleteSelectedConsultations" />
+      </template>
+    </Dialog>
   </div>
-
-  <!-- Footer Buttons -->
-  <template #footer>
-    <Button label="Cancel" icon="pi pi-times" text @click="hideDialog" />
-    <Button label="Save" icon="pi pi-check" @click="saveAppointment" />
-  </template>
-</Dialog>
-
-  
-      <Dialog v-model:visible="deleteAppointmentDialog" :style="{ width: '450px' }" header="Confirm" :modal="true">
-        <div class="flex items-center gap-4">
-          <i class="pi pi-exclamation-triangle !text-3xl" />
-          <span v-if="appointment">Are you sure you want to delete this appointment?</span>
-        </div>
-        <template #footer>
-          <Button label="No" icon="pi pi-times" text @click="deleteAppointmentDialog = false" />
-         
-            <!-- Add loading overlay -->
-            <div v-if="isLoading" >
-                <div class="h-full w-full "></div>
-            <ProgressSpinner />
-             </div>
-        
-
-          <Button label="Yes" icon="pi pi-check" @click="deleteAppointment" />
-        </template>
-      </Dialog>
-      <div>
-      <div v-if="isLoading" class="loading-overlay">
-      <ProgressSpinner />
-    </div>
-  
-      <Dialog v-model:visible="deleteAppointmentsDialog" :style="{ width: '450px' }" header="Confirm" :modal="true">
-        <div class="flex items-center gap-4">
-          <i class="pi pi-exclamation-triangle !text-3xl" />
-          <span v-if="selectedAppointments.length">Are you sure you want to delete the selected appointments?</span>
-        </div>
-   
-        <template #footer>
-          <Button label="No" icon="pi pi-times" text @click="deleteAppointmentsDialog = false" />
-          <Button label="Yes" icon="pi pi-check" text @click="deleteSelectedAppointments" />
-        </template>
-      </Dialog>
-    </div>
-    </div>
-   
- 
-   
-
-
-  </template>
+</template>
 <style>
 .loading-overlay {
   position: fixed;

@@ -3,54 +3,70 @@ const API_URL = 'http://localhost:8000/api';
 export const ConsultationService = {
   // Fetch all appointments
   async getConsultations() {
-    return await $fetch(`${API_URL}/appointments`);
+    return await $fetch(`${API_URL}/consultations`);
+  },
+
+  // Fetch all appointments paginated
+  async getConsultationsPaginated(page = 1, rows = 5, sortField = '', sortOrder = '') {
+    const query = new URLSearchParams({
+      page,
+      rows,
+      sortField,
+      sortOrder,
+    }).toString();
+
+    return await $fetch(`${API_URL}/consultations?${query}`);
   },
 
   // Fetch a single appointment
   async getConsultation(id) {
-    return await $fetch(`${API_URL}/appointments/${id}`);
+    return await $fetch(`${API_URL}/consultations/${id}`);
   },
 
   // Create a new appointment
-  async createConsultation(appointment) {
-    return await $fetch(`${API_URL}/appointments`, {
+  async createConsultation(consultation) {
+    return await $fetch(`${API_URL}/consultations`, {
       method: 'POST',
-      body: appointment,
+      body: consultation,
     });
   },
 
-  async updateConsultation(id, appointment) {
+  async updateConsultation(id, consultation) {
     // Flatten the payload
-    const flattenedAppointment = {
-      patient_id: appointment.patient_id, // Use the ID directly
-      appointment_date: appointment.appointment_date,
-      status: appointment.status.value, 
-      reason_for_visit: appointment.reason_for_visit,
-      notes: appointment.notes,
-      total_fee: appointment.total_fee,
-      cancelation_date: appointment.cancelation_date,
-      cancellation_reason: appointment.cancellation_reason,
+    const flattenedConsultation = {
+      appointment_id:consultation.appointment_id,
+      patient_id:consultation.patient_id,
+      date:consultation.date,
+      time:consultation.time,
+      duration:consultation.duration,
+      symptoms:consultation.symptoms,
+      diagnosis:consultation.diagnosis,
+      treatment_plan:consultation.treatment_plan,
+      prescription:consultation.prescription,
+      test_results:consultation.test_results,
+      referrals:consultation.referrals,
+      consultation_notes:consultation.consultation_notes,
     };
   
-    console.log('Flattened payload:', flattenedAppointment);
+    console.log('Flattened payload:', flattenedConsultation);
   
     try {
-      return await $fetch(`${API_URL}/appointments/${id}`, {
+      return await $fetch(`${API_URL}/consultations/${id}`, {
         method: 'PUT',
-        body: flattenedAppointment,
+        body: flattenedConsultation,
         headers: {
           'Content-Type': 'application/json',
         },
       });
     } catch (error) {
-      console.error('Error updating appointment:', error);
+      console.error('Error updating consultation:', error);
       throw error;
     }
   },
   
   // Delete an appointment
   async deleteConsultation(id) {
-    return await $fetch(`${API_URL}/appointments/${id}`, {
+    return await $fetch(`${API_URL}/consultations/${id}`, {
       method: 'DELETE',
     });
   },
