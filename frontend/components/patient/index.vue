@@ -3,10 +3,11 @@ import { FilterMatchMode } from '@primevue/core/api';
 import { useToast } from 'primevue/usetoast';
 import { onMounted, ref } from 'vue';
 
-
+import { PatientService } from '~/services/patientService';
 
 const {patients,
   fetchPatients,
+  totalRecords,
 } = usePatients();
 
 const isLoading = ref(false);
@@ -55,7 +56,7 @@ function confirmDeletePatient(appt) {
 
 async function deletePatient() {
     
-  await patientService.deletepatient(patient.value.id);
+  await PatientService.deletePatient(patient.value.id);
   
   patients.value = patients.value.filter((val) => val.id !== patient.value.id);
   deletePatientDialog.value = false;
@@ -80,7 +81,7 @@ async function deleteSelectedPatients() {
     isLoading.value = true;
   const idsToDelete = selectedPatients.value.map((appt) => appt.id);
   for (const id of idsToDelete) {
-    await patientService.deletePatient(id);
+    await PatientService.deletePatient(id);
   }
   blocked.value = false;  
   patients.value = patients.value.filter((appt) => !selectedPatients.value.includes(appt));
@@ -96,8 +97,8 @@ async function deleteSelectedPatients() {
 
 
 
-function editPatient(appt) {
-  patient.value = { ...appt };
+function editPatient(p) {
+  patient.value = { ...p};
   patientDialog.value = true;
 }
 function openNew() {
@@ -125,6 +126,8 @@ function hideDialog() {
           </template>
   
           <template #end>
+            <Button label="Refresh" icon="pi pi-refresh" severity="secondary" class="mr-2" @click="fetchPatients"/>
+
             <Button label="Export" icon="pi pi-upload" severity="secondary" @click="exportCSV($event)" />
           </template>
         </Toolbar>
@@ -168,7 +171,7 @@ function hideDialog() {
             <template #body="slotProps">
            
 
-              {{ slotProps.data.name }} 
+              {{ slotProps.data?.name || `${slotProps.data?.firstName} ${slotProps.data?.lastName}` }} 
             </template>
           </Column>
           <Column field="sex" header="Sex " sortable style="min-width: 6rem"></Column>

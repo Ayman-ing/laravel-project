@@ -3,7 +3,7 @@
   
   const route = useRoute();
   const patient = ref(null);
-  
+
   onMounted(async () => {
     console.log(route.params.id);
     try {
@@ -28,16 +28,37 @@ const calculateAge = (birthDate) => {
   }
   return age;
 };
+
 </script>
 
 <template>
    
       
   <div v-if="patient" class="max-w-4xl mx-auto p-4">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-2xl font-bold text-gray-800">Patient Details</h1>
+
+        <NuxtLink 
+        class="flex items-center gap-2 text-primary-600 hover:text-primary-700 transition-colors border 
+        border-primary-600 px-4 py-1 rounded-full text-sm hover:bg-blue-100 bg-opacity-25 transition-colors"
+        to="/patients"
+      >
+      
+      Back
+      <i class="pi pi-arrow-right p-2"></i>
+
+
+        
+      </NuxtLink>  
+      </div>
     <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+   
+      
       <!-- Header with basic info -->
       <div class="bg-primary-50 p-6 border-b">
+   
         <div class="flex justify-between items-start">
+
           <div>
             <h1 class="text-2xl font-bold text-gray-900">
              {{ patient.firstName }} {{ patient.lastName }}
@@ -53,9 +74,8 @@ const calculateAge = (birthDate) => {
               </span>
             </div>
           </div>
-          <button class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700">
-            Edit Patient
-          </button>
+      
+       
         </div>
       </div>
 

@@ -1,5 +1,7 @@
 import { PatientService } from '~/services/patientService';
 const patients = ref([]);
+const totalRecords = ref(0);
+
 const isLoadingPatients = ref(false);
 export function usePatients() {
   
@@ -17,6 +19,7 @@ export function usePatients() {
         ...patient,
         name: `${patient.firstName} ${patient.lastName}`,
       }));
+      totalRecords.value = fetchedPatients.total;
     } catch (error) {
       console.error('Error fetching patients:', error);
     } finally {
@@ -26,6 +29,7 @@ export function usePatients() {
 
   return {
     patients,
+    totalRecords,
     isLoadingPatients,
     fetchPatients,
   };

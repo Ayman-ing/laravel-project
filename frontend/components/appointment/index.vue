@@ -149,6 +149,8 @@ function hideDialog() {
           </template>
   
           <template #end>
+            <Button label="Refresh" icon="pi pi-refresh" severity="secondary" class="mr-2" @click="fetchAppointments"/>
+
             <Button label="Export" icon="pi pi-upload" severity="secondary" @click="exportCSV($event)" />
           </template>
         </Toolbar>

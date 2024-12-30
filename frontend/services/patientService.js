@@ -37,15 +37,22 @@ export const PatientService = {
 
   // Update an existing patient
   async updatePatient(id, patient) {
-    // Flatten the payload if necessary
+   
+
+
     const flattenedPatient = {
-      first_name: patient.first_name,
-      last_name: patient.last_name,
-      date_of_birth: patient.date_of_birth,
+      firstName: patient.firstName, 
+      lastName: patient.lastName, 
+      birthDate: patient.birthDate,
+      sex :  patient.sex,
       phone: patient.phone,
       email: patient.email,
       address: patient.address,
-      notes: patient.notes,
+      civilization: patient.civilization,
+      groupS : patient.groupS,
+      
+
+      
     };
 
     console.log('Flattened payload:', flattenedPatient);

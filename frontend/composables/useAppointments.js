@@ -22,29 +22,13 @@ export function useAppointments() {
     }
   };
 
-  // Add a new appointment
-  const addAppointment = (newAppointment) => {
-    appointments.value.push(newAppointment);
-  };
 
-  // Update an existing appointment
-  const updateAppointment = (updatedAppointment) => {
-    const index = appointments.value.findIndex((appt) => appt.id === updatedAppointment.id);
-    if (index !== -1) appointments.value[index] = updatedAppointment;
-  };
-
-  // Remove an appointment
-  const removeAppointment = (id) => {
-    appointments.value = appointments.value.filter((appt) => appt.id !== id);
-  };
 
   return {
     appointments,
     totalRecords,
     isFetchingAppointments,
     fetchAppointments,
-    addAppointment,
-    updateAppointment,
-    removeAppointment,
+
   };
 }

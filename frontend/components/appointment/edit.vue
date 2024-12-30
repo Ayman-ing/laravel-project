@@ -15,7 +15,7 @@ const status = ref([
   { label: 'no_show', value: 'no_show' },
 ]);
 const {patients} = usePatients();
-const { appointments,fetchAppointments} = useAppointments();
+const { appointments} = useAppointments();
 
 
 const props = defineProps({

@@ -44,7 +44,13 @@
   <h1 class="text-2xl font-bold mb-4">Appointments for Today</h1>
 
       <!-- Appointments Table -->
-      <div v-if="isLoading" class="text-gray-500">Loading appointments...</div>
+      <div v-if="isLoading" >
+        <Skeleton height="4rem" class="opacity-50 mb-2"></Skeleton>
+        <Skeleton height="4rem" class="opacity-50 mb-2"></Skeleton>
+        <Skeleton height="4rem" class="opacity-50 mb-2"></Skeleton>
+        <Skeleton height="4rem" class="opacity-50 mb-2"></Skeleton>
+        
+      </div>
       <div v-else-if="appointments.length === 0" class="text-gray-500">
         No appointments for today.
       </div>
@@ -157,6 +163,7 @@ const calculateNextAppointment = () => {
     const appointmentTime = new Date(`${appointment.date}T${appointment.time}`);
     return appointmentTime > now;
   });
+  
 
   if (nextAppointment.value) {
     const appointmentTime = new Date(`${nextAppointment.value.date}T${nextAppointment.value.time}`);
