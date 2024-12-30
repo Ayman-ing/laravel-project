@@ -155,7 +155,7 @@
       const id = route.params.id;
       const data = await ConsultationService.getConsultation(id);
       consultation.value = data;
-      console.log('Consultation:', data);
+      
     } catch (error) {
       console.error('Error fetching consultation:', error);
     }

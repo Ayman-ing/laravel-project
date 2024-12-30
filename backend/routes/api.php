@@ -31,3 +31,4 @@ Route::get('/patients/{id}', [PatientController::class, 'show'])->name('patients
 Route::post('/patients', [PatientController::class, 'store'])->name('patients.store');
 Route::put('/patients/{id}', [PatientController::class, 'update'])->name('patients.update');
 Route::delete('/patients/{id}', [PatientController::class, 'destroy'])->name('patients.destroy');
+Route::get('/patientsNames', [PatientController::class, 'patientNames'])->name('patients.names');

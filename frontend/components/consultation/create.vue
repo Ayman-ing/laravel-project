@@ -29,7 +29,7 @@ const consultation = ref({
 
 
 async function saveConsultation() {
-    console.log("we are here first");
+    
     disabled.value = true;
     let newConsultation = null;
       // Create a new consultation
@@ -56,9 +56,9 @@ async function saveConsultation() {
     
     
       try {
-        console.log(consultation.value);
+       
       newConsultation = await ConsultationService.createConsultation(consultation.value);
-        console.log(newConsultation);
+        
         toast.add({ severity: 'success', summary: 'Successful', detail: 'Consultation Created', life: 3000 });
 
 
@@ -75,7 +75,7 @@ async function saveConsultation() {
         disabled.value = false;
         emit('hideDialog');
       }
-      console.log("we are here");   
+     
       fetchConsultations();
       
  

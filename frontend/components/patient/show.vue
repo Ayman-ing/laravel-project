@@ -5,13 +5,13 @@
   const patient = ref(null);
 
   onMounted(async () => {
-    console.log(route.params.id);
+   
     try {
       const id = route.params.id;
      
       const data = await PatientService.getPatient(id);
       patient.value = data;
-      console.log("patient",data);
+      
     } catch (error) {
       console.error('Error fetching appointment:', error);
     }

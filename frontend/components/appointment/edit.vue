@@ -14,7 +14,7 @@ const status = ref([
   { label: 'canceled', value: 'canceled' },
   { label: 'no_show', value: 'no_show' },
 ]);
-const {patients} = usePatients();
+const {patients,patientsNames} = usePatients();
 const { appointments} = useAppointments();
 
 
@@ -149,9 +149,9 @@ function findIndexById(id) {
   <Dropdown
     id="patient"
     v-model="appointment.patient_id"
-    :options="patients"
+    :options="patientsNames"
     optionValue="id"
-    optionLabel="name"
+    optionLabel="name"  
     placeholder="Search and Select a Patient"
     filter
     fluid

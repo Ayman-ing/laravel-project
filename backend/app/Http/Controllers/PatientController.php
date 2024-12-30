@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 
 class PatientController extends Controller
 {
+   
     public function index(Request $request)
     {
         $query = Patient::query();
@@ -22,11 +23,7 @@ class PatientController extends Controller
         }
         return $query->paginate($request->get('rows', 5));
     }
-    public function PatientsNames()
-    {
-        $products = Patient::all();
-        return response()->json($products);
-    }
+
 
     public function store(Request $request)
     {
@@ -80,4 +77,10 @@ class PatientController extends Controller
         $product->delete();
         return response()->json(null, 204);
     }
+    public function patientNames()
+    {
+        $patients = Patient::select(['id', 'firstName', 'lastName'])->get(); // Use 'select' to specify columns
+        return response()->json($patients);
+    }
+    
 }

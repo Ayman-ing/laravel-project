@@ -168,7 +168,7 @@
       const id = route.params.id;
       const data = await AppointmentService.getAppointment(id);
       appointment.value = data;
-      console.log('Appointment:', data);
+     
     } catch (error) {
       console.error('Error fetching appointment:', error);
     }

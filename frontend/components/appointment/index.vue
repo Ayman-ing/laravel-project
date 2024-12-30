@@ -13,6 +13,7 @@ const {
 } = useAppointments();
 const {
   fetchPatients,
+  fetchPatientsNames
 } = usePatients();
 
 const isLoading = ref(false);
@@ -27,7 +28,7 @@ const newAppointmentDialog = ref(false);
 
 onMounted(async () => {
   await fetchAppointments(currentPage.value, rowsPerPage.value);
-  fetchPatients() // Trigger patient fetch after appointments
+  fetchPatientsNames(); // Trigger patient fetch after appointments
 });
 const onPageChange = (event) => {
   currentPage.value = event.page + 1; // PrimeVue uses zero-based indexing

@@ -1,10 +1,27 @@
 import { PatientService } from '~/services/patientService';
 const patients = ref([]);
 const totalRecords = ref(0);
-
+const patientsNames = ref([]);
 const isLoadingPatients = ref(false);
 export function usePatients() {
-  
+
+  const fetchPatientsNames = async  () => {
+    try {
+      const fetchedNames = await PatientService.getPatientsNames();
+      
+      fetchedNames.forEach((name) => {
+        name.name = `${name.firstName} ${name.lastName}`;
+      }
+      );
+      patientsNames.value = fetchedNames;
+     
+    }
+    
+    catch (error) {
+      console.error('Error fetching patients names:', error);
+    }
+
+  } 
  
 
   // Fetch all patients
@@ -29,8 +46,10 @@ export function usePatients() {
 
   return {
     patients,
+    patientsNames,
     totalRecords,
     isLoadingPatients,
     fetchPatients,
+    fetchPatientsNames,
   };
 }

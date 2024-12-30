@@ -61,7 +61,7 @@ export const AppointmentService = {
       cancellation_reason: appointment.cancellation_reason,
     };
   
-    console.log('Flattened payload:', flattenedAppointment);
+    
   
     try {
       return await $fetch(`${API_URL}/appointments/${id}`, {

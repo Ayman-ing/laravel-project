@@ -14,7 +14,7 @@ const props = defineProps({
   }
 });
 const patient = toRef(props, 'patient');
-console.log(patient.value,"patient");
+
 
 
 // Options for dropdowns

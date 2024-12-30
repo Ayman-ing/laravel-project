@@ -11,7 +11,7 @@ const status = ref([
   { label: 'canceled', value: 'canceled' },
   { label: 'no_show', value: 'no_show' },
 ]);
-const {patients} = usePatients();
+const {patientsNames} = usePatients();
 const { fetchAppointments} = useAppointments();
 
 const appointment = ref({
@@ -28,7 +28,7 @@ const appointment = ref({
 
 
 async function saveAppointment() {
-    console.log("we are here first");
+    
     disabled.value = true;
     let newAppointment = null;
       // Create a new appointment
@@ -55,9 +55,9 @@ async function saveAppointment() {
     
     
       try {
-        console.log(appointment.value);
+        
       newAppointment = await AppointmentService.createAppointment(appointment.value);
-        console.log(newAppointment);
+        
         toast.add({ severity: 'success', summary: 'Successful', detail: 'Appointment Created', life: 3000 });
 
 
@@ -74,7 +74,7 @@ async function saveAppointment() {
         disabled.value = false;
         emit('hideDialog');
       }
-      console.log("we are here");   
+    
       fetchAppointments();
       
  
@@ -154,9 +154,9 @@ const hideDialog = () => {
   <Dropdown
     id="patient"
     v-model="appointment.patient_id"
-    :options="patients"
+    :options="patientsNames"
     optionValue="id"
-    optionLabel="name"
+    optionLabel="name"  
     placeholder="Search and Select a Patient"
     filter
     fluid

@@ -48,7 +48,7 @@ export const ConsultationService = {
       consultation_notes:consultation.consultation_notes,
     };
   
-    console.log('Flattened payload:', flattenedConsultation);
+    
   
     try {
       return await $fetch(`${API_URL}/consultations/${id}`, {

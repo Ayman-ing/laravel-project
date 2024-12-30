@@ -2,8 +2,15 @@ const API_URL = 'http://localhost:8000/api';
 
 export const PatientService = {
   // Fetch all patients
-  async getPatients() {
-    return await $fetch(`${API_URL}/patients`);
+  async getPatientsNames() {
+    try {
+    const response = await $fetch(`${API_URL}/patientsNames`);
+   
+    return response;
+    } catch (error) {
+      console.error('Error fetching patients names:', error)
+    }
+  
   },
 
   // Fetch all patients paginated
@@ -55,7 +62,7 @@ export const PatientService = {
       
     };
 
-    console.log('Flattened payload:', flattenedPatient);
+    
 
     try {
       return await $fetch(`${API_URL}/patients/${id}`, {
