@@ -67,7 +67,7 @@ class PatientController extends Controller
             
         ]);
 
-        $product->update($validatedData);
+        $patient->update($validatedData);
         return response()->json($patient);
     }
 
