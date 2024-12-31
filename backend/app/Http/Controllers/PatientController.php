@@ -40,19 +40,19 @@ class PatientController extends Controller
             
         ]);
 
-        $product = Patient::create($validatedData);
-        return response()->json($product, 201);
+        $patient = Patient::create($validatedData);
+        return response()->json($patient, 201);
     }
 
     public function show($id)
     {
-        $product = Patient::findOrFail($id);
-        return response()->json($product);
+        $patient = Patient::findOrFail($id);
+        return response()->json($patient);
     }
 
     public function update(Request $request, $id)
     {
-        $product = Patient::findOrFail($id);
+        $patient = Patient::findOrFail($id);
 
         $validatedData = $request->validate([
             'firstName' => 'required|max:255',
@@ -68,13 +68,13 @@ class PatientController extends Controller
         ]);
 
         $product->update($validatedData);
-        return response()->json($product);
+        return response()->json($patient);
     }
 
     public function destroy($id)
     {
-        $product = Patient::findOrFail($id);
-        $product->delete();
+        $patient = Patient::findOrFail($id);
+        $patient->delete();
         return response()->json(null, 204);
     }
     public function patientNames()
