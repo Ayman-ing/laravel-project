@@ -4,7 +4,11 @@
   </NuxtLayout>
 </template>
 <script setup>
-
+const {fetchPatientsNames} = usePatients();
+onBeforeMount(() => {
+  fetchPatientsNames();
+});
+ 
 
 
 

@@ -6,12 +6,13 @@ export const AppointmentService = {
     return await $fetch(`${API_URL}/appointments`);
   },
   // Fetch all appointments paginated
-  async getAppointmentsPaginated(page = 1, rows = 5, sortField = '', sortOrder = '') {
+  async getAppointmentsPaginated(page = 1, rows = 5, sortField = '', sortOrder = '',filterName='') {
     const query = new URLSearchParams({
       page,
       rows,
       sortField,
       sortOrder,
+      filterName,
     }).toString();
 
     return await $fetch(`${API_URL}/appointments?${query}`);

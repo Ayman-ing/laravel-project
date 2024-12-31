@@ -12,7 +12,8 @@ const {
 
 } = useConsultations();
 const {
-  fetchPatients,
+  fetchPatientsNames,
+  getPatientNameById
 } = usePatients();
 
 const isLoading = ref(false);
@@ -27,7 +28,8 @@ const newConsultationDialog = ref(false);
 
 onMounted(async () => {
   await fetchConsultations(currentPage.value, rowsPerPage.value);
-  fetchPatients() // Trigger patient fetch after consultations
+  fetchPatientsNames();
+   // Trigger patient fetch after consultations
 });
 const onPageChange = (event) => {
   currentPage.value = event.page + 1; // PrimeVue uses zero-based indexing
@@ -132,6 +134,8 @@ function hideDialog() {
         </template>
 
         <template #end>
+          <Button label="Refresh" icon="pi pi-refresh" severity="secondary" class="mr-2" @click="fetchConsultations"/>
+
           <Button label="Export" icon="pi pi-upload" severity="secondary" @click="exportCSV($event)" />
         </template>
       </Toolbar>
@@ -169,18 +173,21 @@ function hideDialog() {
           </template>
 
           <Column selectionMode="multiple" style="width: 3rem" :exportable="false"></Column>
-          <Column field="appointment_id" header="Appointment ID" sortable style="min-width: 10rem"></Column>
-          <Column field="patient_id" header="Patient ID" sortable style="min-width: 10rem"></Column>
+          <Column field="patient" header="Patient Name" sortable style="min-width: 10rem">
+            <template #body="slotProps">
+              <span>{{ slotProps.data.patient.firstName }} {{ slotProps.data.patient.lastName }}</span>
+            </template>
+          
+          </Column>
           <Column field="date" header="Date" sortable style="min-width: 8rem"></Column>
-          <Column field="time" header="Time" sortable style="min-width: 8rem"></Column>
-          <Column field="duration" header="Duration" sortable style="min-width: 8rem"></Column>
-          <Column field="symptoms" header="Symptoms" sortable style="min-width: 12rem"></Column>
+          <Column field="time" header="Time" sortable style="min-width: 8rem">
+        </Column>
+          <Column field="duration" header="Duration" sortable style="min-width: 8rem">
+            <template #body="slotProps">
+              <span>{{ slotProps.data.duration }} min</span>
+            </template></Column>
+          <Column field="symptoms" header="Symptoms" sortable style="min-width: 16rem"></Column>
           <Column field="diagnosis" header="Diagnosis" sortable style="min-width: 12rem"></Column>
-          <Column field="treatment_plan" header="Treatment Plan" sortable style="min-width: 14rem"></Column>
-          <Column field="prescription" header="Prescription" sortable style="min-width: 12rem"></Column>
-          <Column field="test_results" header="Test Results" sortable style="min-width: 12rem"></Column>
-          <Column field="referrals" header="Referrals" sortable style="min-width: 12rem"></Column>
-          <Column field="consultation_notes" header="Consultation Notes" sortable style="min-width: 14rem"></Column>
 
           <Column :exportable="false" style="min-width: 12rem">
             <template #body="slotProps">

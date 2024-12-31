@@ -17,7 +17,30 @@ class AppointmentController extends Controller
         $allowedSortFields = ['date', 'time', 'patient.firstName', 'reason_for_visit', 'status'];
         $sortField = $request->get('sortField', null); // Get the sortField from the request
         $sortOrder = $request->get('sortOrder', 'asc'); // Default to ascending order
-
+        $nameFilter = $request->get('filterName', null);
+        if (!empty($nameFilter)) {
+            $searchTerms = array_filter(explode(' ', trim($nameFilter)));
+            
+            $query->whereHas('patient', function ($q) use ($searchTerms) {
+                $q->where(function ($query) use ($searchTerms) {
+                    foreach ($searchTerms as $index => $term) {
+                        if ($index === 0) {
+                            // First term could be either firstName or lastName
+                            $query->where(function ($q) use ($term) {
+                                $q->where('firstName', 'like', "%{$term}%")
+                                  ->orWhere('lastName', 'like', "%{$term}%");
+                            });
+                        } else {
+                            // Subsequent terms are more likely to be lastName
+                            $query->where(function ($q) use ($term) {
+                                $q->where('firstName', 'like', "%{$term}%")
+                                  ->orWhere('lastName', 'like', "%{$term}%");
+                            });;
+                        }
+                    }
+                });
+            });
+        }
         if ($sortField === 'patient.firstName') {
         // Sort by patient firstName
         $query->join('patients', 'appointments.patient_id', '=', 'patients.id')

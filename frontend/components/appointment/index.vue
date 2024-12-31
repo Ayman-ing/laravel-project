@@ -4,7 +4,7 @@ import { PatientService } from '~/services/patientService';
 import { FilterMatchMode } from '@primevue/core/api';
 import { useToast } from 'primevue/usetoast';
 import { onMounted, ref } from 'vue';
-
+import {debounce} from 'lodash';
 const {
   appointments,
     totalRecords,
@@ -23,23 +23,37 @@ const rowsPerPage = ref(5);
 const currentPage = ref(1);
 const sortField = ref('');
 const sortOrder = ref('');
+const nameFilter = ref(''); 
 const appointmentDialog = ref(false);
 const newAppointmentDialog = ref(false);
-
+const filters = reactive({
+      name: nameFilter.value, // Bind name filter
+    });
 onMounted(async () => {
   await fetchAppointments(currentPage.value, rowsPerPage.value);
-  fetchPatientsNames(); // Trigger patient fetch after appointments
+  // Trigger patient fetch after appointments
 });
 const onPageChange = (event) => {
   currentPage.value = event.page + 1; // PrimeVue uses zero-based indexing
   rowsPerPage.value = event.rows;
-  fetchAppointments(currentPage.value, rowsPerPage.value, sortField.value, sortOrder.value);
+  fetchAppointments(currentPage.value, rowsPerPage.value, sortField.value, sortOrder.value,nameFilter.value);
 };
+const onFilterChange = () => {
+    
+      fetchAppointments(currentPage.value, rowsPerPage.value, sortField.value, sortOrder.value,nameFilter.value);
+    };
+    const debouncedFetch = debounce((page, rowsPerPage, sortField, sortOrder, nameFilter) => {
+  fetchAppointments(page, rowsPerPage, sortField, sortOrder, nameFilter);
+}, 300); // Wait 300ms after the last change before making the API call
+watch(nameFilter, () => {
+  debouncedFetch(currentPage.value, rowsPerPage.value, sortField.value, sortOrder.value, nameFilter.value);
+});
+
 
 const onSortChange = (event) => {
   sortField.value = event.sortField;
   sortOrder.value = event.sortOrder > 0 ? 'asc' : 'desc'; // PrimeVue uses 1 for ascending and -1 for descending
-  fetchAppointments(currentPage.value, rowsPerPage.value, sortField.value, sortOrder.value);
+  fetchAppointments(currentPage.value, rowsPerPage.value, sortField.value, sortOrder.value,nameFilter.value);
 };
 
 const toast = useToast();
@@ -50,9 +64,7 @@ const deleteAppointmentsDialog = ref(false);
 const appointment = ref({});
 const selectedAppointments = ref([]);
 
-const filters = ref({
-  global: { value: null, matchMode: FilterMatchMode.CONTAINS },
-});
+
 const submitted = ref(false);
 
 
@@ -184,7 +196,10 @@ function hideDialog() {
                 <InputIcon>
                   <i class="pi pi-search" />
                 </InputIcon>
-                <InputText v-model="filters['global'].value" placeholder="Search..." />
+                <InputText  v-model="nameFilter"
+              @input="onFilterChange"
+                type="text"
+                placeholder="Search..." />
               </IconField>
             </div>
           </template>

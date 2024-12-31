@@ -91,7 +91,6 @@ const hideDialog = () => {
 
 <template>
     <Dialog
-      :visible="visible"
       :style="{ width: '800px' }"
       header="Consultation Details"
       :modal="true"

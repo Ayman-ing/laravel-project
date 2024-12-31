@@ -43,6 +43,16 @@ export function usePatients() {
       isLoadingPatients.value = false;
     }
   };
+  const getPatientNameById = (id) => {
+    if (!patientsNames.value || patientsNames.value.length === 0) {
+      console.warn('Patients data is not loaded yet.');
+      return '';
+    }
+  
+    const patient = patientsNames.value.find((patient) => patient._id === id);
+    return patient ? `${patient.firstName} ${patient.lastName}` : '';
+  };
+  
 
   return {
     patients,
@@ -51,5 +61,6 @@ export function usePatients() {
     isLoadingPatients,
     fetchPatients,
     fetchPatientsNames,
+    getPatientNameById
   };
 }

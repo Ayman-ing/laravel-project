@@ -13,9 +13,10 @@ class ConsultationController extends Controller
     // List consultations with pagination
     public function index(Request $request)
     {
-        $perPage = $request->get('per_page', 10); // Default to 10 items per page
-        $consultations = Consultation::paginate($perPage);
-
+        $perPage = $request->get('per_page', 5); // Default to 10 items per page
+                
+        $consultations = Consultation::with('patient:id,firstName,lastName') // Load patient data
+                       ->paginate($perPage);
         return response()->json($consultations);
     }
 
